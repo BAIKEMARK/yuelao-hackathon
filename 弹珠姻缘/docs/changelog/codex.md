@@ -100,3 +100,21 @@
 - `npm test` 通过，14/14
 风险：
 - 无
+
+时间：2026-06-06 23:30
+
+任务：新增跨平台快速启动脚本
+分支：agent/codex/marble-cp
+修改：
+- 新增根目录 `start-mac.command`
+- 新增根目录 `start-win.bat`
+- 更新 README，补充 macOS 和 Windows 快速启动方式
+验证：
+- `bash -n start-mac.command` 通过
+- 检查 `start-mac.command` 权限为可执行
+- 检查 `start-win.bat` 使用 `%~dp0` 定位仓库根目录，并进入 `弹珠姻缘`
+- `git diff --check` 通过
+- `npm test` 通过，14/14
+- `rm -rf .next && npm run build` 通过
+风险：
+- Windows 脚本需在 Windows 环境实际双击复验；当前先验证脚本语法和路径约定

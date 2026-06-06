@@ -31,6 +31,26 @@
 - AI 接入 StepFun `step-3.7-flash`。
 - 根目录 `.env` 中的 `API_KEY` 只能由服务端代理读取，不能暴露给前端。
 
+## 快速启动
+
+macOS：
+
+```bash
+./start-mac.command
+```
+
+Windows：
+
+```bat
+start-win.bat
+```
+
+脚本会进入 `弹珠姻缘/`，缺少 `node_modules` 时自动执行 `npm install`，然后启动 `npm run dev`。启动后打开：
+
+```text
+http://localhost:3000
+```
+
 ## 当前核心流程
 
 ```text
