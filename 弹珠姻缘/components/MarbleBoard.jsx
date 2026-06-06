@@ -160,15 +160,28 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
       x: cueBody.position.x - point.x,
       y: cueBody.position.y - point.y
     };
+
+    launchCue(vector);
+    dragPointRef.current = null;
+  }
+
+  function handleCanvasClick() {
+    if (launchedRef.current || completedRef.current || dragPointRef.current) {
+      return;
+    }
+
+    launchCue({ x: 0, y: -1 });
+  }
+
+  function launchCue(vector) {
     const distance = Math.min(Math.hypot(vector.x, vector.y), 220);
     const force = Math.max(distance / 18, 2.8);
     const length = Math.max(Math.hypot(vector.x, vector.y), 1);
 
-    matterRef.current.Matter.Body.setVelocity(cueBody, {
+    matterRef.current.Matter.Body.setVelocity(matterRef.current.cueBody, {
       x: (vector.x / length) * force,
       y: (vector.y / length) * force
     });
-    dragPointRef.current = null;
     launchedRef.current = true;
     setLaunched(true);
   }
@@ -216,6 +229,7 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onClick={handleCanvasClick}
       />
       <div className="board-help">
         {launched ? "倒计时结束后自动锁定 CP。" : "按住底部母球向后拖，松手只发射一次。"}

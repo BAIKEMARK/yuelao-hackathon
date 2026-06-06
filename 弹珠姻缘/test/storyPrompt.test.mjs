@@ -44,3 +44,18 @@ test("normalizeStoryPayload parses structured JSON content", () => {
   assert.match(payload.story, /五次相遇/);
   assert.equal(payload.yuelaoComment, "红绳没系，账先记上。");
 });
+
+test("normalizeStoryPayload accepts common Chinese field names and fills title", () => {
+  const payload = normalizeStoryPayload(
+    JSON.stringify({
+      关系标签: "礼貌错过",
+      故事: "她把这次补签看作簿子犯懒，他却认真收下这页纸，转身仍旧把花影留在原处。",
+      月老批注: "没撞上也能记账，月老今日算是偷懒成功。"
+    })
+  );
+
+  assert.equal(payload.title, "林间误签");
+  assert.equal(payload.relationshipTag, "礼貌错过");
+  assert.match(payload.story, /补签/);
+  assert.match(payload.yuelaoComment, /偷懒成功/);
+});
