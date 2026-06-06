@@ -69,11 +69,11 @@
 - 新增 localStorage 图鉴读写与记录创建逻辑
 - 新增规则、prompt、图鉴存储测试
 验证：
-- `cd 弹珠姻缘 && npm test`：12 个测试通过
+- `cd 弹珠姻缘 && npm test`：14 个测试通过
 - `cd 弹珠姻缘 && rm -rf .next && npm run build`：Next.js 构建通过，`/api/generate-story` 为动态服务端路由
 - `curl --max-time 45 -X POST http://localhost:3000/api/generate-story ...`：无命中补签路径返回 HTTP 200 和四字段姻缘档案
 - 浏览器验收：开始页 -> 选林黛玉 -> 弹珠盘单次发射 -> AI 结果页 -> 存入图鉴 -> 刷新后图鉴记录仍存在
 - 已确认根目录 `.env` 存在，但未读取或输出密钥内容
 风险：
 - npm install 报告 2 个 moderate audit 项，未执行会破坏版本的 `npm audit fix --force`
-- StepFun 输出偶有结构不稳定，服务端已增加结构兼容、每次请求超时和最多三次真实 AI 重试；连续失败时前端仍显示重试生成
+- StepFun 输出偶有结构不稳定，服务端已增加结构兼容、每次请求超时、最多三次真实 AI 重试，以及 story 物理撞击词校验；连续失败时前端仍显示重试生成
