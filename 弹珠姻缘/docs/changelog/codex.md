@@ -77,3 +77,39 @@
 风险：
 - npm install 报告 2 个 moderate audit 项，未执行会破坏版本的 `npm audit fix --force`
 - StepFun 输出偶有结构不稳定，服务端已增加结构兼容、每次请求超时、最多三次真实 AI 重试，以及 story 物理撞击词校验；连续失败时前端仍显示重试生成
+
+时间：2026-06-06 22:55
+
+任务：补充多 AI 分工协作文档
+分支：agent/codex/marble-cp
+修改：
+- 更新根目录 `AGENTS.md`，改为当前《红绳懒得系，弹珠自己撞》项目协作规范
+- 更新 `README.md` 和 `Agent.md`，补充 `弹珠姻缘/docs/AI_COLLABORATION.md` 与资源规范入口
+- 新增 `弹珠姻缘/docs/AI_COLLABORATION.md`，明确 UI、AI 报纸 Prompt / Agent、报纸布局、图片资源和规则模块的分工边界
+- 新增 `弹珠姻缘/public/assets/README.md`，约定背景、角色、弹珠、报纸和 UI 资源路径
+验证：
+- 检查 README 已写明当前项目目录 `弹珠姻缘/`
+- 检查协作文档保留 `/api/generate-story` 现有四字段响应契约
+- 检查资源规范统一使用 `/assets/...` 前端引用路径
+- `npm test` 通过，14/14
+- `rm -rf .next && npm run build` 通过
+风险：
+- 后续真正接入报纸字段时仍需同步 `storyPrompt` 测试和结果页兼容逻辑
+
+时间：2026-06-06 23:08
+
+任务：清理旧版本并降低 Agent 文档命名混淆
+分支：agent/codex/marble-cp
+修改：
+- 将根目录 `Agent.md` 改名为 `弹珠姻缘/docs/PROJECT_CONTEXT.md`
+- 更新 `AGENTS.md`、`README.md` 和 `弹珠姻缘/docs/AI_COLLABORATION.md` 中的开工必读路径
+- 保留根目录 `AGENTS.md` 作为 AI 工具约定入口
+- 删除未跟踪旧方案目录 `传杯/` 和 `废案/`
+- 删除旧“传杯”计划目录 `docs/superpowers/`
+验证：
+- `find . -maxdepth 3 ...` 未发现旧“月老牵线”、`传杯`、`废案`、`pass-the-cup` 文件或目录残留
+- 检查 `AGENTS.md`、`README.md`、`AI_COLLABORATION.md` 已指向 `弹珠姻缘/docs/PROJECT_CONTEXT.md`
+- `npm test` 通过，14/14
+- `rm -rf .next && npm run build` 通过
+风险：
+- `Agent.md` 作为旧文件名仅保留在历史 changelog 记录中
