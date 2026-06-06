@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildStoryMessages, normalizeStoryPayload } from "../lib/storyPrompt.js";
+import { assertStoryFitsResult, buildStoryMessages, normalizeStoryPayload } from "../lib/storyPrompt.js";
 
 const baseInput = {
   cue: { name: "林黛玉", source: "红楼梦", tag: "嘴上带刺，心里很明" },
@@ -58,4 +58,28 @@ test("normalizeStoryPayload accepts common Chinese field names and fills title",
   assert.equal(payload.relationshipTag, "礼貌错过");
   assert.match(payload.story, /补签/);
   assert.match(payload.yuelaoComment, /偷懒成功/);
+});
+
+test("assertStoryFitsResult rejects literal marble impact story text", () => {
+  assert.throws(
+    () =>
+      assertStoryFitsResult({
+        title: "林间误签",
+        relationshipTag: "误会拉扯",
+        story: "母球滚过台面，正撞上贾宝玉攥在手里的弹珠。",
+        yuelaoComment: "这局误签。"
+      }),
+    /physical marble terms/
+  );
+});
+
+test("assertStoryFitsResult accepts encounter-style story text", () => {
+  const payload = {
+    title: "林间误签",
+    relationshipTag: "误会拉扯",
+    story: "姻缘簿误签了半页，她在回廊里与他擦肩，话说得带刺，心里却明白这次相遇不是全无缘由。",
+    yuelaoComment: "误签也有误签的章法。"
+  };
+
+  assert.equal(assertStoryFitsResult(payload), payload);
 });

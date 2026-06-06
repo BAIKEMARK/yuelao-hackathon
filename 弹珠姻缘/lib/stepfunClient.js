@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "node:path";
-import { buildStoryMessages, normalizeStoryPayload } from "./storyPrompt.js";
+import { assertStoryFitsResult, buildStoryMessages, normalizeStoryPayload } from "./storyPrompt.js";
 
 dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
 
@@ -47,7 +47,7 @@ export async function generateStory(input) {
         throw new Error("StepFun response missing message content");
       }
 
-      return normalizeStoryPayload(content);
+      return assertStoryFitsResult(normalizeStoryPayload(content));
     } catch (error) {
       lastError = error;
     } finally {

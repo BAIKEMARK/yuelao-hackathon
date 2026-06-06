@@ -44,6 +44,16 @@ export function normalizeStoryPayload(content) {
   };
 }
 
+export function assertStoryFitsResult(payload) {
+  const forbiddenPattern = /弹珠|台球|母球|球杆|球局|撞上|撞到|相撞|碰撞/;
+
+  if (forbiddenPattern.test(payload.story)) {
+    throw new Error("StepFun story contains physical marble terms");
+  }
+
+  return payload;
+}
+
 function extractJsonText(content) {
   const trimmed = content.trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
