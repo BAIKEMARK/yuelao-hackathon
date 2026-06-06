@@ -1,0 +1,69 @@
+:root {
+  color: #2b1712;
+  background: #f3e2c0;
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(187, 38, 38, 0.18), transparent 30%),
+    linear-gradient(160deg, #fff3d6 0%, #eac58c 50%, #8d382b 100%);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  width: min(100%, 430px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel {
+  width: 100%;
+  border: 1px solid rgba(78, 32, 24, 0.22);
+  border-radius: 8px;
+  padding: 28px 22px;
+  background: rgba(255, 249, 232, 0.86);
+  box-shadow: 0 18px 60px rgba(83, 31, 22, 0.22);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #9a3129;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+h1 {
+  margin: 0 0 14px;
+  font-size: 34px;
+  line-height: 1.06;
+  letter-spacing: 0;
+}
+
+p {
+  line-height: 1.7;
+}
