@@ -1,46 +1,18 @@
 # Codex Changelog
 
-时间：2026-06-06 17:00
-
-任务：补充 AI 协作开发规范
-分支：当前目录未初始化 Git，未创建任务分支
-修改：
-- 新增根目录 `AGENTS.md`
-- 补充开工前必读、每人一个分支、开工前 Git 检查、及时提交、每个 AI 维护自己的 changelog
-- 修正章节编号
-验证：
-- 检查 `AGENTS.md` 标题编号
-- 检查关键协作规则已覆盖
-风险：
-- 当前目录不是 Git 仓库，本次无法实际创建分支或提交
-
-时间：2026-06-06 17:20
-
-任务：初始化远程仓库基础说明
-分支：main
-修改：
-- 新增 `README.md`
-- 新增 `.gitignore`，排除 `.env`、系统文件、依赖和构建缓存
-- 准备只提交基础说明和项目文档
-验证：
-- 检查 GitHub CLI 已登录
-- 确认 `BAIKEMARK/yuelao-hackathon` 尚不存在
-风险：
-- 当前任务是初始化仓库，首个提交会直接落在 `main`
-
 时间：2026-06-06 21:06
 
-任务：更新弹珠姻缘项目开发口径
+任务：确定弹珠姻缘项目开发口径
 分支：main
 修改：
-- 更新 `Agent.md`，移除旧“寻找概念”和废案说明，改为《红绳懒得系，弹珠自己撞》当前方向
-- 新增 `docs/plan/2026-06-06-marble-cp-h5.md`，作为项目自己的 H5 实施计划
+- 将项目方向锁定为《红绳懒得系，弹珠自己撞》
 - 记录 StepFun `step-3.7-flash`、根目录 `.env` 的 `API_KEY`、服务端代理、贴图占位和 Matter.js 弹珠实现口径
+- 新增 H5 实施计划，作为弹珠项目开发依据
 验证：
-- 检查 `Agent.md` 已指向最新 PRD 和当前核心流程
-- 检查计划文件位于 `docs/plan/`，没有继续放入 `docs/superpowers/plans/`
+- 检查项目文档已指向弹珠姻缘最新 PRD 和当前核心流程
+- 检查计划文件位于 `弹珠姻缘/docs/plan/`
 风险：
-- 计划尚未执行，Next.js 项目和 API 调用仍需开发验证
+- 当时计划尚未执行，Next.js 项目和 API 调用仍需开发验证
 
 时间：2026-06-06 21:14
 
@@ -50,12 +22,12 @@
 - 将产品 PRD 移入 `弹珠姻缘/docs/`
 - 将 H5 实施计划移入 `弹珠姻缘/docs/plan/`
 - 将 Codex changelog 移入 `弹珠姻缘/docs/changelog/`
-- 更新 `Agent.md` 和 `README.md`，统一指向当前项目目录与新文档路径
+- 更新根目录 README，统一指向当前项目目录与新文档路径
 验证：
 - 检查当前项目文档已集中在 `弹珠姻缘/docs/`
-- 检查根目录 README 不再引用旧“月老牵线局”流程
+- 检查根目录 README 已写明当前项目目录 `弹珠姻缘/`
 风险：
-- 旧 `docs/superpowers/`、`传杯/`、`废案/` 未移动，保留为历史或其他项目内容
+- 后续已清理旧方案目录和旧 PRD
 
 时间：2026-06-06 22:35
 
@@ -84,7 +56,7 @@
 分支：agent/codex/marble-cp
 修改：
 - 更新根目录 `AGENTS.md`，改为当前《红绳懒得系，弹珠自己撞》项目协作规范
-- 更新 `README.md` 和 `Agent.md`，补充 `弹珠姻缘/docs/AI_COLLABORATION.md` 与资源规范入口
+- 更新 `README.md`，补充 `弹珠姻缘/docs/AI_COLLABORATION.md` 与资源规范入口
 - 新增 `弹珠姻缘/docs/AI_COLLABORATION.md`，明确 UI、AI 报纸 Prompt / Agent、报纸布局、图片资源和规则模块的分工边界
 - 新增 `弹珠姻缘/public/assets/README.md`，约定背景、角色、弹珠、报纸和 UI 资源路径
 验证：
@@ -104,12 +76,27 @@
 - 将根目录 `Agent.md` 改名为 `弹珠姻缘/docs/PROJECT_CONTEXT.md`
 - 更新 `AGENTS.md`、`README.md` 和 `弹珠姻缘/docs/AI_COLLABORATION.md` 中的开工必读路径
 - 保留根目录 `AGENTS.md` 作为 AI 工具约定入口
-- 删除未跟踪旧方案目录 `传杯/` 和 `废案/`
-- 删除旧“传杯”计划目录 `docs/superpowers/`
+- 删除旧方案目录 `传杯/`、`废案/`、`.superpowers/` 和 `docs/superpowers/`
+- 删除旧“月老牵线”PRD 和根目录旧 changelog
 验证：
 - `find . -maxdepth 3 ...` 未发现旧“月老牵线”、`传杯`、`废案`、`pass-the-cup` 文件或目录残留
 - 检查 `AGENTS.md`、`README.md`、`AI_COLLABORATION.md` 已指向 `弹珠姻缘/docs/PROJECT_CONTEXT.md`
 - `npm test` 通过，14/14
 - `rm -rf .next && npm run build` 通过
 风险：
-- `Agent.md` 作为旧文件名仅保留在历史 changelog 记录中
+- 根目录 `AGENTS.md` 会保留，因为它是 AI 工具默认协作入口
+
+时间：2026-06-06 23:18
+
+任务：精简 changelog 为弹珠版本记录
+分支：agent/codex/marble-cp
+修改：
+- 删除旧项目初始化和旧协作规范记录
+- 仅保留弹珠项目锁定后的开发、文档、清理和验证记录
+- 将当前项目上下文统一指向 `弹珠姻缘/docs/PROJECT_CONTEXT.md`
+验证：
+- 检查 changelog 不再包含旧项目初始化记录
+- `git diff --check -- 弹珠姻缘/docs/changelog/codex.md` 通过
+- `npm test` 通过，14/14
+风险：
+- 无
