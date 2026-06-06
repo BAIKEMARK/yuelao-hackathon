@@ -118,3 +118,20 @@
 - `rm -rf .next && npm run build` 通过
 风险：
 - Windows 脚本需在 Windows 环境实际双击复验；当前先验证脚本语法和路径约定
+
+时间：2026-06-06 23:45
+
+任务：修复 StepFun 生成看似未接 API Key 的问题
+分支：agent/codex/marble-cp
+修改：
+- 确认根目录 `.env` 可读取 `API_KEY`，不需要移动到 `弹珠姻缘/`
+- 将 `.env` 加载路径改为基于 `lib/stepfunClient.js` 所在位置，避免受启动工作目录影响
+- 移除 StepFun 请求里的 `response_format: { type: "json_object" }`，避免模型返回畸形空字段 JSON
+验证：
+- 从 `弹珠姻缘` 目录加载 `../.env`，确认 `API_KEY` 已设置
+- 从仓库根目录直接调用 `generateStory`，返回 `title,relationshipTag,story,yuelaoComment`
+- 本地 dev server 调用 `POST /api/generate-story` 返回 HTTP 200 和四字段结果
+- `npm test` 通过，15/15
+- `rm -rf .next && npm run build` 通过
+风险：
+- 仍依赖 StepFun 返回可解析 JSON；已有最多三次重试和结构化解析兜底
