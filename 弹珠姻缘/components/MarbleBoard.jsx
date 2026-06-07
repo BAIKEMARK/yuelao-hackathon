@@ -5,7 +5,12 @@ import { resolveWinner } from "../lib/pairing.js";
 
 const BOARD_PADDING = 28;
 const BALL_RADIUS = 24;
-const ROUND_SECONDS = 18;
+const ROUND_SECONDS = 16;
+const MIN_DRAG_DISTANCE = 12;
+const SETTLE_SPEED = 0.7;
+const SETTLE_FRAMES = 30;
+const MIN_SETTLE_MS = 1600;
+const NO_RECENT_HIT_MS = 2600;
 
 export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
   const canvasRef = useRef(null);
@@ -13,6 +18,9 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
   const dragPointRef = useRef(null);
   const launchedRef = useRef(false);
   const completedRef = useRef(false);
+  const launchedAtRef = useRef(0);
+  const lastCollisionAtRef = useRef(0);
+  const settledFramesRef = useRef(0);
   const hitCountsRef = useRef({});
   const lastHitIdRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -20,6 +28,7 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
   const [secondsLeft, setSecondsLeft] = useState(ROUND_SECONDS);
   const [hitCounts, setHitCounts] = useState({});
   const [lastHitName, setLastHitName] = useState("尚未相遇");
+  const [statsOpen, setStatsOpen] = useState(false);
 
   useEffect(() => {
     let disposed = false;
@@ -44,19 +53,19 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
       canvas.style.height = `${height}px`;
 
       const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
-      const cueBody = Matter.Bodies.circle(width / 2, height - 72, BALL_RADIUS, {
-        restitution: 0.96,
-        frictionAir: 0.012,
+      const cueBody = Matter.Bodies.circle(width / 2, height - 88, BALL_RADIUS, {
+        restitution: 0.99,
+        frictionAir: 0.006,
         label: "cue"
       });
       cueBody.characterId = cue.id;
 
       const targetBodies = createTargetBodies(Matter, targets, width, height);
       const walls = [
-        Matter.Bodies.rectangle(width / 2, -10, width, 20, { isStatic: true }),
-        Matter.Bodies.rectangle(width / 2, height + 10, width, 20, { isStatic: true }),
-        Matter.Bodies.rectangle(-10, height / 2, 20, height, { isStatic: true }),
-        Matter.Bodies.rectangle(width + 10, height / 2, 20, height, { isStatic: true })
+        Matter.Bodies.rectangle(width / 2, -10, width, 20, wallOptions()),
+        Matter.Bodies.rectangle(width / 2, height + 10, width, 20, wallOptions()),
+        Matter.Bodies.rectangle(-10, height / 2, 20, height, wallOptions()),
+        Matter.Bodies.rectangle(width + 10, height / 2, 20, height, wallOptions())
       ];
 
       Matter.Composite.add(engine.world, [cueBody, ...targetBodies, ...walls]);
@@ -76,6 +85,7 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
             [targetId]: (hitCountsRef.current[targetId] || 0) + 1
           };
           lastHitIdRef.current = targetId;
+          lastCollisionAtRef.current = window.performance.now();
           setHitCounts(hitCountsRef.current);
           setLastHitName(targets.find((target) => target.id === targetId)?.name || "命定对象");
         }
@@ -88,6 +98,7 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
         if (!disposed) {
           Matter.Engine.update(engine, 1000 / 60);
           clampBodies(Matter, [cueBody, ...targetBodies], width, height);
+          maybeFinishSettled([cueBody, ...targetBodies]);
           drawBoard(canvas, matterRef.current, cue, targets, dragPointRef.current, launchedRef.current);
           animationId = window.requestAnimationFrame(tick);
         }
@@ -128,6 +139,7 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
   }, [launched]);
 
   function handlePointerDown(event) {
+    event.preventDefault();
     if (!ready || launchedRef.current || completedRef.current) {
       return;
     }
@@ -138,10 +150,12 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
 
     if (distance <= BALL_RADIUS * 1.8) {
       dragPointRef.current = point;
+      event.currentTarget.setPointerCapture?.(event.pointerId);
     }
   }
 
   function handlePointerMove(event) {
+    event.preventDefault();
     if (!dragPointRef.current || launchedRef.current) {
       return;
     }
@@ -150,6 +164,8 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
   }
 
   function handlePointerUp(event) {
+    event.preventDefault();
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
     if (!dragPointRef.current || launchedRef.current || completedRef.current) {
       return;
     }
@@ -161,21 +177,24 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
       y: cueBody.position.y - point.y
     };
 
+    if (Math.hypot(vector.x, vector.y) < MIN_DRAG_DISTANCE) {
+      dragPointRef.current = null;
+      return;
+    }
+
     launchCue(vector);
     dragPointRef.current = null;
   }
 
-  function handleCanvasClick() {
-    if (launchedRef.current || completedRef.current || dragPointRef.current) {
-      return;
-    }
-
-    launchCue({ x: 0, y: -1 });
+  function handlePointerCancel(event) {
+    event.preventDefault();
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    dragPointRef.current = null;
   }
 
   function launchCue(vector) {
-    const distance = Math.min(Math.hypot(vector.x, vector.y), 220);
-    const force = Math.max(distance / 18, 2.8);
+    const distance = Math.min(Math.hypot(vector.x, vector.y), 280);
+    const force = Math.max(distance / 12, 4.6);
     const length = Math.max(Math.hypot(vector.x, vector.y), 1);
 
     matterRef.current.Matter.Body.setVelocity(matterRef.current.cueBody, {
@@ -183,7 +202,34 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
       y: (vector.y / length) * force
     });
     launchedRef.current = true;
+    launchedAtRef.current = window.performance.now();
+    lastCollisionAtRef.current = launchedAtRef.current;
+    settledFramesRef.current = 0;
     setLaunched(true);
+  }
+
+  function maybeFinishSettled(bodies) {
+    if (!launchedRef.current || completedRef.current) {
+      return;
+    }
+
+    if (window.performance.now() - launchedAtRef.current < MIN_SETTLE_MS) {
+      return;
+    }
+
+    const now = window.performance.now();
+    const noRecentHit = now - lastCollisionAtRef.current >= NO_RECENT_HIT_MS;
+    if (noRecentHit) {
+      finishRound();
+      return;
+    }
+
+    const allSlow = bodies.every((body) => Math.hypot(body.velocity.x, body.velocity.y) < SETTLE_SPEED);
+    settledFramesRef.current = allSlow ? settledFramesRef.current + 1 : 0;
+
+    if (settledFramesRef.current >= SETTLE_FRAMES) {
+      finishRound();
+    }
   }
 
   function finishRound() {
@@ -209,6 +255,8 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
   }
 
   const leader = getLeader(targets, hitCounts);
+  const totalHits = Object.values(hitCounts).reduce((total, count) => total + count, 0);
+  const leaderLabel = leader ? `领先：${leader.name}` : lastHitName;
 
   return (
     <section className="screen-stack board-screen">
@@ -220,30 +268,54 @@ export default function MarbleBoard({ cue, targets, onComplete, onBack }) {
           <p className="eyebrow">母球：{cue.name}</p>
           <h2>{launched ? `${secondsLeft}s` : "拖动母球发射"}</h2>
         </div>
-        <div className="leader-pill">{leader ? `领先：${leader.name}` : lastHitName}</div>
+        <div className="leader-pill">{leaderLabel}</div>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="marble-canvas"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        onClick={handleCanvasClick}
-      />
+      <div className="marble-stage">
+        <canvas
+          ref={canvasRef}
+          className="marble-canvas"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+        />
+      </div>
       <div className="board-help">
-        {launched ? "倒计时结束后自动锁定 CP。" : "按住底部母球向后拖，松手只发射一次。"}
+        {launched ? "碰撞基本停下就会锁定 CP，倒计时只是兜底。" : "按住底部母球向后拖，松手立即发射。"}
       </div>
-      <div className="hit-board">
-        {targets.map((target) => (
-          <div className="hit-row" key={target.id}>
-            <span>{target.name}</span>
-            <b>{hitCounts[target.id] || 0}</b>
+      <div className={`hit-dock${statsOpen ? " is-open" : ""}`}>
+        <button
+          className="hit-dock-summary"
+          type="button"
+          onClick={() => setStatsOpen((current) => !current)}
+          aria-expanded={statsOpen}
+        >
+          <span>碰撞 {totalHits}</span>
+          <b>{leaderLabel}</b>
+          <span>{statsOpen ? "收起" : "计数"}</span>
+        </button>
+        {statsOpen ? (
+          <div className="hit-board">
+            {targets.map((target) => (
+              <div className="hit-row" key={target.id}>
+                <span>{target.name}</span>
+                <b>{hitCounts[target.id] || 0}</b>
+              </div>
+            ))}
           </div>
-        ))}
+        ) : null}
       </div>
     </section>
   );
+}
+
+function wallOptions() {
+  return {
+    isStatic: true,
+    restitution: 1,
+    friction: 0,
+    frictionStatic: 0
+  };
 }
 
 function createTargetBodies(Matter, targets, width, height) {
@@ -258,8 +330,8 @@ function createTargetBodies(Matter, targets, width, height) {
     const x = BOARD_PADDING + gapX * column + gapX / 2;
     const y = startY + row * gapY + (column % 2) * 14;
     const body = Matter.Bodies.circle(x, y, BALL_RADIUS, {
-      restitution: 0.96,
-      frictionAir: 0.015,
+      restitution: 0.99,
+      frictionAir: 0.008,
       label: "target"
     });
     body.characterId = target.id;

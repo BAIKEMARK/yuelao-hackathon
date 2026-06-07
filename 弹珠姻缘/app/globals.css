@@ -228,16 +228,18 @@ button:disabled {
 }
 
 .board-screen {
-  padding: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .board-topbar {
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .leader-pill {
-  max-width: 98px;
+  max-width: 104px;
   border-radius: 999px;
   padding: 8px 10px;
   color: #fff7e1;
@@ -247,11 +249,15 @@ button:disabled {
   text-align: center;
 }
 
+.marble-stage {
+  min-height: 0;
+}
+
 .marble-canvas {
   display: block;
   width: 100%;
-  height: min(56vh, 472px);
-  min-height: 420px;
+  height: clamp(500px, calc(100vh - 164px), 620px);
+  min-height: 500px;
   border-radius: 8px;
   touch-action: none;
   background: #5a241d;
@@ -259,12 +265,65 @@ button:disabled {
 }
 
 .board-help {
-  margin: 10px 2px 12px;
+  margin: 8px 2px;
   color: var(--deep-red);
   font-size: 13px;
 }
 
+.hit-dock {
+  border: 1px solid rgba(104, 41, 28, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 249, 232, 0.78);
+  box-shadow: 0 10px 22px rgba(80, 26, 19, 0.12);
+  overflow: hidden;
+}
+
+.hit-dock.is-open {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  z-index: 20;
+  width: min(402px, calc(100vw - 28px));
+  max-height: 34vh;
+  transform: translateX(-50%);
+  background: rgba(255, 249, 232, 0.96);
+  overflow: auto;
+}
+
+.hit-dock-summary {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  text-align: left;
+  background: transparent;
+}
+
+.hit-dock-summary b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--deep-red);
+}
+
+.hit-dock-summary span {
+  font-size: 12px;
+}
+
+.hit-dock-summary span:last-child {
+  text-align: right;
+  color: var(--green);
+  font-weight: 700;
+}
+
 .hit-board {
+  border-top: 1px solid rgba(104, 41, 28, 0.12);
+  padding: 8px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
@@ -426,6 +485,26 @@ button:disabled {
   }
 
   .marble-canvas {
-    min-height: 392px;
+    height: clamp(470px, calc(100vh - 148px), 590px);
+    min-height: 470px;
+  }
+
+  .board-topbar {
+    gap: 8px;
+  }
+
+  .board-topbar h2 {
+    font-size: 21px;
+  }
+
+  .leader-pill {
+    max-width: 88px;
+    padding: 7px 8px;
+  }
+
+  .hit-dock-summary {
+    grid-template-columns: 66px minmax(0, 1fr) 40px;
+    gap: 6px;
+    padding: 0 8px;
   }
 }
