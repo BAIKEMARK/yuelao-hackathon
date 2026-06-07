@@ -2,6 +2,8 @@
   color: #301812;
   background: #f3e2c0;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  --game-max-width: 430px;
+  --game-viewport-height: 100dvh;
   --paper: #fff4dc;
   --ink: #301812;
   --red: #b8322b;
@@ -17,12 +19,15 @@
 
 html,
 body {
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   margin: 0;
 }
 
 body {
   min-height: 100vh;
+  min-height: var(--game-viewport-height);
+  overflow: hidden;
   background:
     linear-gradient(90deg, rgba(80, 31, 20, 0.05) 1px, transparent 1px) 0 0 / 18px 18px,
     radial-gradient(circle at 18% 12%, rgba(184, 50, 43, 0.18), transparent 30%),
@@ -40,10 +45,13 @@ button {
 }
 
 .app-shell {
-  width: min(100%, 430px);
+  --game-width: min(100vw, var(--game-max-width), calc((var(--game-viewport-height) - 20px) * 0.5625));
+  --game-height: min(calc(var(--game-viewport-height) - 20px), calc(var(--game-width) * 1.7778));
+  width: var(--game-width);
   min-height: 100vh;
+  min-height: var(--game-viewport-height);
   margin: 0 auto;
-  padding: 18px 14px;
+  padding: 10px 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,15 +64,16 @@ button {
 .archive-card,
 .generating-card {
   width: 100%;
+  height: var(--game-height);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 22px 18px;
   background: rgba(255, 249, 232, 0.9);
   box-shadow: 0 18px 60px rgba(83, 31, 22, 0.22);
+  overflow: auto;
 }
 
 .hero-screen {
-  min-height: calc(100vh - 36px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -162,7 +171,7 @@ button:disabled {
 }
 
 .screen-stack {
-  min-height: calc(100vh - 36px);
+  min-height: 0;
 }
 
 .screen-header,
@@ -231,6 +240,7 @@ button:disabled {
   padding: 12px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .board-topbar {
@@ -251,13 +261,14 @@ button:disabled {
 
 .marble-stage {
   min-height: 0;
+  flex: 1;
 }
 
 .marble-canvas {
   display: block;
   width: 100%;
-  height: clamp(500px, calc(100vh - 164px), 620px);
-  min-height: 500px;
+  height: 100%;
+  min-height: 0;
   border-radius: 8px;
   touch-action: none;
   background: #5a241d;
@@ -283,7 +294,7 @@ button:disabled {
   left: 50%;
   bottom: 12px;
   z-index: 20;
-  width: min(402px, calc(100vw - 28px));
+  width: min(var(--game-width), calc(100vw - 28px));
   max-height: 34vh;
   transform: translateX(-50%);
   background: rgba(255, 249, 232, 0.96);
@@ -468,7 +479,9 @@ button:disabled {
 
 @media (max-width: 360px) {
   .app-shell {
-    padding: 10px;
+    --game-width: min(100vw, var(--game-max-width), calc((var(--game-viewport-height) - 12px) * 0.5625));
+    --game-height: min(calc(var(--game-viewport-height) - 12px), calc(var(--game-width) * 1.7778));
+    padding: 6px 0;
   }
 
   h1 {
@@ -482,11 +495,6 @@ button:disabled {
   .character-card {
     min-height: 168px;
     padding: 10px 8px;
-  }
-
-  .marble-canvas {
-    height: clamp(470px, calc(100vh - 148px), 590px);
-    min-height: 470px;
   }
 
   .board-topbar {
